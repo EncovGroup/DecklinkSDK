@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.7.2)
 
 project(DeckLink LANGUAGES C CXX VERSION 10.5)
 
-option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
+option(BUILD_SHARED_LIBS "Build shared libraries" ON)
 
 
 find_package(Threads REQUIRED)
