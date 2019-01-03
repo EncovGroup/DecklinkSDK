@@ -19,9 +19,15 @@ endif()
 
 add_library(DeckLink ${SDK_SOURCES} ${SDK_HEADERS})
 
+if(APPLE)
+    set(decklinkInclude "${PROJECT_SOURCE_DIR}/Mac/include")
+else()
+    set(decklinkInclude "${PROJECT_SOURCE_DIR}/Linux/include")
+endif()
+
 target_include_directories(DeckLink PUBLIC
-        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/Mac/include>
-        $<INSTALL_INTERFACE:include/>)
+    $<BUILD_INTERFACE:${decklinkInclude}>
+    $<INSTALL_INTERFACE:include/>)
 
 target_link_libraries(DeckLink PUBLIC Threads::Threads)
 
