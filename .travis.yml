@@ -41,6 +41,8 @@ env:
     - DECKLINK_INSTALL_STATIC=${DECKLINK_BUILD_STATIC}/install
     - DECKLINK_BUILD_SHARED=${TRAVIS_BUILD_DIR}/buildShared
     - DECKLINK_INSTALL_SHARED=${DECKLINK_BUILD_SHARED}/install
+    - DECKLINK_SOURCE_APP=${DECKLINK_SOURCE}/Examples
+    - DECKLINK_BUILD_APP=${DECKLINK_SOURCE_APP}/buildShared
 
 before_script:
   # Create build folder
@@ -76,18 +78,16 @@ script:
   - make install -j 2 VERBOSE=1
 
 
-## Test if it compiles as third party
-#- cd $DECKLINK_SOURCE_APP
-#- mkdir --parent $DECKLINK_BUILD_APP
-#- cd $DECKLINK_BUILD_APP
-#- >
-#  cmake -DCMAKE_CXX_COMPILER=$CXX_COMPILER \
-#    -DCMAKE_C_COMPILER=$C_COMPILER \
-#    -DCCTag_DIR:PATH=/$DECKLINK_INSTALL/lib/cmake/CCTag/ \
-#    -DOpenCV_DIR:PATH=$OPENCV_INSTALL/share/OpenCV \
-#    -DCMAKE_INSTALL_PREFIX:PATH=`pwd`/install \
-#    . $DECKLINK_SOURCE_APP
-#- make install -j 2 VERBOSE=1
+  # Test if it compiles as third party
+  - cd $DECKLINK_SOURCE_APP
+  - mkdir --parent $DECKLINK_BUILD_APP
+  - cd $DECKLINK_BUILD_APP
+  - >
+    cmake -DCMAKE_CXX_COMPILER=$CXX_COMPILER \
+      -DCMAKE_C_COMPILER=$C_COMPILER \
+      -DCMAKE_PREFIX_PATH:PATH=${DECKLINK_INSTALL_SHARED} \
+      . $DECKLINK_SOURCE_APP
+  - make -j 2 VERBOSE=1
 
 
 # Before uploading the new cache archive
