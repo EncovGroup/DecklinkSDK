@@ -30,11 +30,15 @@ target_include_directories(platform PUBLIC
 
 target_link_libraries(platform PUBLIC Threads::Threads DeckLink::DeckLink)
 
+if(APPLE)
+    target_link_libraries(platform PUBLIC "-framework CoreFoundation")
+endif()
+
 add_executable(AutomaticModeDetection AutomaticModeDetection.cpp)
 target_link_libraries(AutomaticModeDetection PUBLIC platform)
 
-add_executable(DeviceNotification DeviceNotification.cpp)
-target_link_libraries(DeviceNotification PUBLIC platform)
+#add_executable(DeviceNotification DeviceNotification.cpp)
+#target_link_libraries(DeviceNotification PUBLIC platform)
 
 add_executable(VancOutput VancOutput.cpp)
 target_link_libraries(VancOutput PUBLIC platform)
