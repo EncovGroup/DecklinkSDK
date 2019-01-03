@@ -23,7 +23,11 @@ target_include_directories(DeckLink PUBLIC
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/Mac/include>
         $<INSTALL_INTERFACE:include/>)
 
-target_link_libraries(DeckLink PUBLIC Threads::Threads "-framework CoreFoundation")
+target_link_libraries(DeckLink PUBLIC Threads::Threads)
+
+if(APPLE)
+    target_link_libraries(DeckLink PUBLIC "-framework CoreFoundation")
+endif()
 
 set_target_properties(DeckLink PROPERTIES PUBLIC_HEADER "${SDK_HEADERS}")
 
