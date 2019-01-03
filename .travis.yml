@@ -1,0 +1,103 @@
+language: cpp
+dist: trusty
+
+addons:
+  apt:
+    sources:
+      - llvm-toolchain-trusty-4.0
+      - ubuntu-toolchain-r-test
+    packages:
+      - clang-4.0
+      - g++-5
+      - g++-6
+      - g++-7
+      - g++-8
+
+matrix:
+  include:
+    - compiler: gcc
+      env: COMPILERS="CXX=g++-4.8 && CC=gcc-4.8" TOOLSET=gcc
+    - compiler: gcc-5
+      env: COMPILERS="CXX=g++-5 && CC=gcc-5" TOOLSET=gcc
+    - compiler: gcc-6
+      env: COMPILERS="CXX=g++-6 && CC=gcc-6" TOOLSET=gcc
+    - compiler: gcc-7
+      env: COMPILERS="CXX=g++-7 && CC=gcc-7" TOOLSET=gcc
+    - compiler: gcc-8
+      env: COMPILERS="CXX=g++-8 && CC=gcc-8" TOOLSET=gcc
+    - compiler: clang
+      env: COMPILERS="CXX=clang++ && CC=clang" TOOLSET=clang
+    - compiler: clang-4.0
+      env: COMPILERS="CXX=clang++-4.0 && CC=clang-4.0" TOOLSET=clang
+
+env:
+  global:
+    - NUM_CPU="`grep processor /proc/cpuinfo | wc -l`"; echo $NUM_CPU
+    - BUILD_TYPE="RELEASE"
+    - BUILD_SYSTEM="`uname -s`"
+    - BUILD_PROCESSOR="`uname -p`"
+    - DECKLINK_SOURCE=${TRAVIS_BUILD_DIR}
+    - DECKLINK_BUILD_STATIC=${TRAVIS_BUILD_DIR}/buildStatic
+    - DECKLINK_INSTALL_STATIC=${DECKLINK_BUILD_STATIC}/install
+    - DECKLINK_BUILD_SHARED=${TRAVIS_BUILD_DIR}/buildShared
+    - DECKLINK_INSTALL_SHARED=${DECKLINK_BUILD_SHARED}/install
+#    # CMAKE
+#    - CMAKE_URL="https://cmake.org/files/v3.8/cmake-3.8.2-Linux-x86_64.tar.gz"
+#    - CMAKE_ROOT=${HOME}/cmake
+#    - CMAKE_SOURCE=${CMAKE_ROOT}/source
+#    - CMAKE_INSTALL=${CMAKE_ROOT}/install
+
+before_script:
+  # Create build folder
+  - mkdir --parent $DECKLINK_BUILD_STATIC
+  - cd $DECKLINK_BUILD_STATIC
+  # Classic release build with static libs
+  - >
+    cmake \
+      -DCMAKE_CXX_COMPILER=$CXX_COMPILER \
+      -DCMAKE_C_COMPILER=$C_COMPILER \
+      -DCMAKE_INSTALL_PREFIX:PATH=$DECKLINK_INSTALL_STATIC \
+      -DBUILD_SHARED_LIBS:BOOL=OFF \
+      -DCMAKE_BUILD_TYPE:BOOL=$BUILD_TYPE \
+      . $DECKLINK_SOURCE
+  - mkdir --parent $DECKLINK_BUILD_SHARED
+  - cd $DECKLINK_BUILD_SHARED
+  # Classic release build with shared libs
+  - >
+    cmake \
+      -DCMAKE_CXX_COMPILER=$CXX_COMPILER \
+      -DCMAKE_C_COMPILER=$C_COMPILER \
+      -DCMAKE_INSTALL_PREFIX:PATH=$DECKLINK_INSTALL_SHARED \
+      -DBUILD_SHARED_LIBS:BOOL=ON \
+      -DCMAKE_BUILD_TYPE:BOOL=$BUILD_TYPE \
+      . $DECKLINK_SOURCE
+script:
+  # classic make install with static
+  - cd $DECKLINK_BUILD_STATIC
+  - make install -j 2 VERBOSE=1
+
+  # classic make install with shared
+  - cd $DECKLINK_BUILD_SHARED
+  - make install -j 2 VERBOSE=1
+
+
+## Test if it compiles as third party
+#- cd $DECKLINK_SOURCE_APP
+#- mkdir --parent $DECKLINK_BUILD_APP
+#- cd $DECKLINK_BUILD_APP
+#- >
+#  cmake -DCMAKE_CXX_COMPILER=$CXX_COMPILER \
+#    -DCMAKE_C_COMPILER=$C_COMPILER \
+#    -DCCTag_DIR:PATH=/$DECKLINK_INSTALL/lib/cmake/CCTag/ \
+#    -DOpenCV_DIR:PATH=$OPENCV_INSTALL/share/OpenCV \
+#    -DCMAKE_INSTALL_PREFIX:PATH=`pwd`/install \
+#    . $DECKLINK_SOURCE_APP
+#- make install -j 2 VERBOSE=1
+
+
+# Before uploading the new cache archive
+before_cache:
+  - ccache -s
+
+cache:
+  ccache: true
