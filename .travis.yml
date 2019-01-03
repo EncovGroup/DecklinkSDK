@@ -51,6 +51,8 @@ before_script:
   # Create build folder
   - mkdir --parent $DECKLINK_BUILD_STATIC
   - cd $DECKLINK_BUILD_STATIC
+  - ls $DECKLINK_SOURCE
+  - ls $DECKLINK_SOURCE/cmake
   # Classic release build with static libs
   - >
     cmake \
