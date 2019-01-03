@@ -33,7 +33,10 @@ target_link_libraries(DeckLink PUBLIC Threads::Threads)
 
 if(APPLE)
     target_link_libraries(DeckLink PUBLIC "-framework CoreFoundation")
+else()
+    target_link_libraries(DeckLink PRIVATE ${CMAKE_DL_LIBS})
 endif()
+
 
 set_target_properties(DeckLink PROPERTIES PUBLIC_HEADER "${SDK_HEADERS}")
 
